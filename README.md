@@ -37,3 +37,8 @@ Execute:
 Invoke-Build -Task Clean  
 Invoke-Build -Task Test  
 Invoke-Build  
+
+Building via AppVeyor  
+
+[![Build status](https://ci.appveyor.com/api/projects/status/14tgbiuqcxsvpxx5/branch/master?svg=true)](https://ci.appveyor.com/project/jmccor99/templates/branch/master)  
+
