@@ -4,3 +4,7 @@ build_script:
     cd .\ModuleTemplate
 
     .\Build.ps1
+test: off
+artifacts:
+- path: ModuleTemplate\artifacts\**\*
+  name: ModuleTemplate
