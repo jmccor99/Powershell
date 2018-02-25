@@ -1,17 +1,14 @@
 ﻿# Include: Settings.
 . './ModuleTemplate.settings.ps1'
 
-# Include: build_utils.
-. './build_utils.ps1'
-
 #Synopsis: Run Tests and Fail Build on Error.
-task Test Clean, RunTests, ConfirmTestsPassed
-
-#Synopsis: Run full Pipeline.
-task . Clean, Analyze, Test
+task . InstallDependencies, Clean, Analyze, RunTests, ConfirmTestsPassed
 
 #Synopsis: Install dependencies.
-task InstallDependencies {}
+task InstallDependencies {
+	Install-Module Pester -Repository PSGallery -SkipPublisherCheck -Scope CurrentUser
+	Install-Module PSScriptAnalyzer -Repository PSGallery -SkipPublisherCheck -Scope CurrentUser
+}
 
 #Synopsis: Clean Artifact directory.
 task Clean {
