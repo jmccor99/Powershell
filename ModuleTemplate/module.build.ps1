@@ -34,9 +34,22 @@ task Analyze {
         Verbose = $false
     }
 
-    $saResults = Invoke-ScriptAnalyzer @scriptAnalyzerParams
-    # Save the results.
-    $saResults | ConvertTo-Json | Set-Content (Join-Path $Artifacts "ScriptAnalysisResults.json")
+    $ScriptAnalyzerResult = Invoke-ScriptAnalyzer @scriptAnalyzerParams
+
+    If ( $ScriptAnalyzerResult ) {  
+        $ScriptAnalyzerResultString = $ScriptAnalyzerResult | Out-String
+        Write-Warning $ScriptAnalyzerResultString
+    }
+
+    Import-Module Export-NUnitXml -Force
+    Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path '.\ScriptAnalyzerResult.xml'
+   
+    (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", '.\ScriptAnalyzerResult.xml')
+    
+    If ( $ScriptAnalyzerResult ) {        
+        # Failing the build
+        Throw 'There was PSScriptAnalyzer violation(s). See test results for more information.'
+    }
 }
 
 #Synopsis: Run tests.
