@@ -16,7 +16,7 @@ $paramsPathModuleDepends = @{
 }
 
 $paramsPSDepend = @{
-    Path  = (Join-Path @paramsPathModuleDepends)
+    Path  = Join-Path @paramsPathModuleDepends
     Force = $true
 }
 
