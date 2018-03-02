@@ -1,14 +1,17 @@
-﻿# Include: Settings.
-. './ModuleTemplate.settings.ps1'
+﻿
+$parentPath = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+
+$paramsPathBuildSettings = @{
+    Path      =  $parentPath
+    ChildPath = "build.settings.ps1"
+}
+
+$pathBuildSettings = Join-Path @paramsPathBuildSettings
+
+. $pathBuildSettings
 
 #Synopsis: Run Tests and Fail Build on Error.
-task . InstallDependencies, Clean, Analyze, RunTests, ConfirmTestsPassed
-
-#Synopsis: Install dependencies.
-task InstallDependencies {
-	Install-Module Pester -Repository PSGallery -SkipPublisherCheck -Scope CurrentUser
-	Install-Module PSScriptAnalyzer -Repository PSGallery -SkipPublisherCheck -Scope CurrentUser
-}
+task . Clean, Analyze, RunTests, ConfirmTestsPassed
 
 #Synopsis: Clean Artifact directory.
 task Clean {
@@ -18,10 +21,6 @@ task Clean {
     }
 
     New-Item -ItemType Directory -Path $Artifacts -Force
-
-    if (!(Test-Path -Path .\PSTestReport)) {
-        & git clone https://github.com/Xainey/PSTestReport.git
-    }
     
 }
 
@@ -67,8 +66,6 @@ task RunTests {
         PesterFile = (Join-Path $Artifacts "PesterResults.json")
         OutputDir = "$Artifacts"
     }
-
-    . ".\PSTestReport\Invoke-PSTestReport.ps1" @options
 }
 
 #Synopsis: Confirm that tests passed.
