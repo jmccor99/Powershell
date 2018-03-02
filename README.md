@@ -1,6 +1,4 @@
-﻿# Templates
-
-
+﻿
 # ModuleTemplate 
 
 Usage:  
