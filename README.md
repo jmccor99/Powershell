@@ -5,9 +5,9 @@ Usage:
 
 cd c:\temp\  
 
-git clone https://github.com/jmccor99/Templates.git  
+git clone https://github.com/jmccor99/Powershell.git  
 
-cd c:\temp\Templates\ModuleTemplate\  
+cd c:\temp\Powershell\ModuleTemplate\  
 
 .\Build.ps1  
 
