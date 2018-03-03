@@ -34,7 +34,7 @@ task Analyze {
 
     $scriptAnalyzerResults = Invoke-ScriptAnalyzer @scriptAnalyzerParams
 
-    $scriptAnalyzerResultsPath = (Join-Path $Artifacts "ScriptAnalyzerResult.xml")
+    $scriptAnalyzerResultsPath = (Join-Path $Artifacts "ScriptAnalyzerResults.xml")
     
     $webClient = New-Object 'System.Net.WebClient'
     Invoke-Expression -Command $webClient.DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
