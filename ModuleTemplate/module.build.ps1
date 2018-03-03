@@ -7,7 +7,13 @@ param(
     $PercentCompliance = '50'
 )
 
-task . Clean, Analyze, RunTests, ConfirmTestsPassed, Package, Publish
+$ProjectRoot = $ENV:BHProjectPath
+
+if (-not $ProjectRoot) {
+    $ProjectRoot = $PSScriptRoot
+}
+
+task Default Clean, Analyze, RunTests, ConfirmTestsPassed, Publish
 
 task Clean {
 
@@ -33,8 +39,7 @@ task Analyze {
 
     $scriptAnalyzerResultsPath = (Join-Path $Artifacts "ScriptAnalyzerResults.xml")
     
-    $webClient = New-Object 'System.Net.WebClient'
-    Invoke-Expression -Command $webClient.DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
+    Invoke-Expression -Command (New-Object 'System.Net.WebClient').DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
     
     Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path $scriptAnalyzerResultsPath
 
@@ -60,11 +65,11 @@ task RunTests {
 
 task ConfirmTestsPassed {
 
-    [xml]$testResultsXml = Get-Content (Join-Path $Artifacts "TestResults.xml")
+    [xml] $testResultsXml = Get-Content (Join-Path $Artifacts "TestResults.xml")
     $numberFails = $testResultsXml."test-results".failures
     assert($numberFails -eq 0) ('Failed "{0}" Pester tests.' -f $numberFails)
 
-    [xml]$scriptAnalyzerXml = Get-Content (Join-Path $Artifacts "ScriptAnalyzerResults.xml")
+    [xml] $scriptAnalyzerXml = Get-Content (Join-Path $Artifacts "ScriptAnalyzerResults.xml")
     $numberFails = $scriptAnalyzerXml."test-results".failures
     assert($numberFails -eq 0) ('Failed "{0}" ScriptAnalyzer rules.' -f $numberFails)
 
@@ -74,38 +79,25 @@ task ConfirmTestsPassed {
 
 }
 
-task Package {
-
-    $paramsRegisterPSRepository = @{
-        Name               = 'Artifacts'
-        SourceLocation     = (Resolve-Path $Artifacts).Path
-        PublishLocation    = (Resolve-Path $Artifacts).Path
-        InstallationPolicy = 'Trusted'
-    }
-
-    Register-PSRepository @paramsRegisterPSRepository
-
-    $paramsPublishModule = @{
-        Name        = $ModuleName
-        Repository  = 'Artifacts'
-        NuGetApiKey = '12345'
-    }
-
-    $psd1 = $ModuleName + '.psd1'
-    $psd1Path = Join-Path $ModulePath $psd1
-
-    Import-Module $psd1Path
-    
-    Publish-Module @paramsPublishModule
-
-    UnRegister-PSRepository -Name Artifacts
-
-}
-
 task Publish {
 
-    Get-ChildItem -Path $Artifacts -Filter '*Results*.xml' -File | ForEach-Object {
-        (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "$($_.FullName)")
+    Set-ModuleFunctions
+
+    $Version = Get-NextNugetPackageVersion -Name $env:BHProjectName
+
+    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
+
+    $psdeployParams = @{
+        Path = $ProjectRoot
+        Force = $true
+    }
+
+   if ( $ENV:BHBuildSystem -eq 'AppVeyor' ) {
+        Get-ChildItem -Path $Artifacts -Filter '*Results*.xml' -File | ForEach-Object {
+            (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "$($_.FullName)")
+        }
+
+        Invoke-PSDeploy @psdeployParams
     }
 
 }

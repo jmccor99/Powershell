@@ -1,34 +1,15 @@
 
-$parentPath = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+Remove-Module * -Force
 
-$paramsModulePSDepend = @{
-    Name = "PSDepend"
-    Force  = $true
-}
+Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
-Install-Module @paramsModulePSDepend
+Install-Module -Repository PSGallery -Name InvokeBuild, PSScriptAnalyzer, PSDeploy, BuildHelpers -Force -AllowClobber
 
-Import-Module $paramsModulePSDepend.Name
+Install-Module -Repository PSGallery -Name Pester -MinimumVersion 4.1 -Force -AllowClobber -SkipPublisherCheck
 
-$paramsPathModuleDepends = @{
-    Path      =  $parentPath
-    ChildPath = "module.depends.psd1"
-}
+Import-Module BuildHelpers, PSScriptAnalyzer
 
-$paramsPSDepend = @{
-    Path  = Join-Path @paramsPathModuleDepends
-    Force = $true
-}
+Set-BuildEnvironment
 
-Invoke-PSDepend @paramsPSDepend
+Invoke-Build $ENV:BHProjectPath\module.build.ps1 -Task Default
 
-$paramsPathModuleBuild = @{
-    Path      =  $parentPath
-    ChildPath = "module.build.ps1"
-}
-
-$paramsBuild = @{
-    File = Join-Path @paramsPathModuleBuild
-}
-
-Invoke-Build @paramsBuild
