@@ -82,15 +82,20 @@ task Package {
         PublishLocation    = (Resolve-Path $Artifacts).Path
         InstallationPolicy = 'Trusted'
     }
-    
+
     Register-PSRepository @paramsRegisterPSRepository
 
     $paramsPublishModule = @{
-        Path        = (Resolve-Path $ModulePath).Path
+        Name        = $ModuleName
         Repository  = 'Artifacts'
         NuGetApiKey = '12345'
     }
 
+    $psd1 = $ModuleName + '.psd1'
+    $psd1Path = Join-Path $ModulePath $psd1
+
+    Import-Module $psd1Path
+    
     Publish-Module @paramsPublishModule
 
     UnRegister-PSRepository -Name Artifacts
