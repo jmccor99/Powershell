@@ -41,7 +41,7 @@ task Analyze {
         Write-Warning $ScriptAnalyzerResultString
     }
 
-    Import-Module Export-NUnitXml -Force
+    iex (new-object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
     Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path '.\ScriptAnalyzerResult.xml'
    
     (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", '.\ScriptAnalyzerResult.xml')
