@@ -99,12 +99,8 @@ task Package {
 
 task Publish {
 
-    $testResultsPath = (Join-Path $Artifacts "TestResults.xml")
-    $webClient = New-Object 'System.Net.WebClient'
-    $webClient.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsPath | Select-Object -ExpandProperty Path) )
-
-    $scriptAnalyzerResultsPath = (Join-Path $Artifacts "ScriptAnalyzerResults.xml")
-    $webClient = New-Object 'System.Net.WebClient'
-    $webClient.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $scriptAnalyzerResultsPath | Select-Object -ExpandProperty Path) )
+    Get-ChildItem -Path $Artifacts -Filter '*Results*.xml' -File | ForEach-Object {
+        (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "$($_.FullName)")
+    }
 
 }
