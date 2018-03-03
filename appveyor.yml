@@ -1,10 +1,5 @@
 version: 1.0.{build}
 
-#Publish to PowerShell Gallery with this key
-environment:
-  NuGetApiKey:
-    secure: f91c1732-fd5b-4ba8-b80d-6ffb6f7c143b
-
 # Allow WMF5 (i.e. PowerShellGallery functionality)
 os: WMF 5
 
