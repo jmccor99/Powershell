@@ -1,16 +1,14 @@
 ﻿
-$parentPath = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+param (
+    $Artifacts = '.\artifacts',
+    $ModuleName = "ModuleTemplate",
+    $ModulePath = '.\ModuleTemplate',
+    #$BuildNumber = $env:BUILD_NUMBER,
+    $BuildNumber = 1.0.0,
+    $PercentCompliance = '50'
+)
 
-$paramsPathBuildSettings = @{
-    Path      =  $parentPath
-    ChildPath = "build.settings.ps1"
-}
-
-$pathBuildSettings = Join-Path @paramsPathBuildSettings
-
-. $pathBuildSettings
-
-task . Clean, Analyze, RunTests, ConfirmTestsPassed, Publish
+task . Clean, Analyze, RunTests, ConfirmTestsPassed, Package, Publish
 
 task Clean {
 
@@ -74,6 +72,16 @@ task ConfirmTestsPassed {
     $pesterJson = Get-Content (Join-Path $Artifacts "PesterResults.json") | ConvertFrom-Json
     $overallCoverage = [Math]::Floor(($pesterJson.CodeCoverage.NumberOfCommandsExecuted / $pesterJson.CodeCoverage.NumberOfCommandsAnalyzed) * 100)
     assert($OverallCoverage -gt $PercentCompliance) ('A Code Coverage of "{0}" does not meet the build requirement of "{1}"' -f $overallCoverage, $PercentCompliance)
+
+}
+
+task Package {
+
+    Register-PSRepository -Name Artifacts -SourceLocation (Resolve-Path $Artifacts).Path -PublishLocation (Resolve-Path $Artifacts).Path -InstallationPolicy Trusted
+
+    Publish-Module -Path (Resolve-Path $ModulePath).Path -Repository Artifacts -NuGetApiKey 'Nothing'
+
+    UnRegister-PSRepository -Name Artifacts
 
 }
 
