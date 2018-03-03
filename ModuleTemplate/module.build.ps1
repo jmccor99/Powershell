@@ -48,7 +48,7 @@ task Analyze {
    
     # upload results to AppVeyor
     $wc = New-Object 'System.Net.WebClient'
-    $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $scriptAnalyzerResultPath))
+    write-output !$wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $scriptAnalyzerResultPath))"
     
     If ( $ScriptAnalyzerResult ) {        
         # Failing the build
