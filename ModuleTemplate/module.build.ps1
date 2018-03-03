@@ -41,10 +41,14 @@ task Analyze {
         Write-Warning $ScriptAnalyzerResultString
     }
 
+    $scriptAnalyzerResultPath = (Join-Path $Artifacts "ScriptAnalyzerResult.xml")
+
     iex (new-object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
-    Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path '.\ScriptAnalyzerResult.xml'
+    Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path $scriptAnalyzerResultPath
    
-    (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", '.\ScriptAnalyzerResult.xml')
+    # upload results to AppVeyor
+    $wc = New-Object 'System.Net.WebClient'
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $scriptAnalyzerResultPath))
     
     If ( $ScriptAnalyzerResult ) {        
         # Failing the build
