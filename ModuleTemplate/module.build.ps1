@@ -67,7 +67,7 @@ task ConfirmTestsPassed {
     $numberFails = $testResultsXml."test-results".failures
     assert($numberFails -eq 0) ('Failed "{0}" Pester tests.' -f $numberFails)
 
-    [xml]$scriptAnalyzerXml = Get-Content (Join-Path $Artifacts "ScriptAnalyzerResult.xml")
+    [xml]$scriptAnalyzerXml = Get-Content (Join-Path $Artifacts "ScriptAnalyzerResults.xml")
     $numberFails = $scriptAnalyzerXml."test-results".failures
     assert($numberFails -eq 0) ('Failed "{0}" ScriptAnalyzer rules.' -f $numberFails)
 
