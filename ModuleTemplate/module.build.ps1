@@ -78,9 +78,8 @@ task ConfirmTestsPassed {
 task Package {
 
     Register-PSRepository -Name Artifacts -SourceLocation (Resolve-Path $Artifacts).Path -PublishLocation (Resolve-Path $Artifacts).Path -InstallationPolicy Trusted
-    Get-PSRepository
-    (Resolve-Path $ModulePath).Path
-    #Publish-Module -Path (Resolve-Path $ModulePath).Path -Repository Artifacts -NuGetApiKey 'Nothing'
+
+    "Publish-Module -Path (Resolve-Path $ModulePath).Path -Repository Artifacts -NuGetApiKey 'Nothing'"
 
     UnRegister-PSRepository -Name Artifacts
 
