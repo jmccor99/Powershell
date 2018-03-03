@@ -7,7 +7,7 @@ cd c:\temp\
 
 git clone https://github.com/jmccor99/Powershell.git  
 
-cd c:\temp\Powershell\ModuleTemplate\  
+cd c:\temp\Powershell\   
 
 .\Build.ps1  
 
