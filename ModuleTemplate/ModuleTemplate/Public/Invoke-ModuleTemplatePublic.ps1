@@ -9,6 +9,6 @@ function Invoke-ModuleTemplatePublic {
     )
 
     process {
-	return "Invoke-ModuleTemplatePublic"
+        return "Invoke-ModuleTemplatePublic"
     }
 }

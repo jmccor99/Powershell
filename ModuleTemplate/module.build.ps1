@@ -10,22 +10,20 @@ $pathBuildSettings = Join-Path @paramsPathBuildSettings
 
 . $pathBuildSettings
 
-#Synopsis: Run Tests and Fail Build on Error.
-task . Clean, Analyze, RunTests, ConfirmTestsPassed
+task . Clean, Analyze, RunTests, ConfirmTestsPassed, Publish
 
-#Synopsis: Clean Artifact directory.
 task Clean {
-    
-    if (Test-Path -Path $Artifacts) {
+
+    if ( Test-Path -Path $Artifacts ) {
         Remove-Item "$Artifacts/*" -Recurse -Force
+    } else {
+        New-Item -ItemType Directory -Path $Artifacts -Force
     }
 
-    New-Item -ItemType Directory -Path $Artifacts -Force
-    
 }
 
-#Synopsis: Analyze code.
 task Analyze {
+
     $scriptAnalyzerParams = @{
         Path = $ModulePath
         ExcludeRule = @('PSPossibleIncorrectComparisonWithNull', 'PSUseToExportFieldsInManifest')
@@ -34,30 +32,19 @@ task Analyze {
         Verbose = $false
     }
 
-    $ScriptAnalyzerResult = Invoke-ScriptAnalyzer @scriptAnalyzerParams
+    $scriptAnalyzerResults = Invoke-ScriptAnalyzer @scriptAnalyzerParams
 
-    If ( $ScriptAnalyzerResult ) {  
-        $ScriptAnalyzerResultString = $ScriptAnalyzerResult | Out-String
-        Write-Warning $ScriptAnalyzerResultString
-    }
-
-    $scriptAnalyzerResultPath = (Join-Path $Artifacts "ScriptAnalyzerResult.xml")
-
-    iex (new-object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
-    Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path $scriptAnalyzerResultPath
-   
-    # upload results to AppVeyor
-    $wc = New-Object 'System.Net.WebClient'
-    $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $scriptAnalyzerResultPath | Select-Object -ExpandProperty Path) )
+    $scriptAnalyzerResultsPath = (Join-Path $Artifacts "ScriptAnalyzerResult.xml")
     
-    If ( $ScriptAnalyzerResult ) {        
-        # Failing the build
-        Throw 'There was PSScriptAnalyzer violation(s). See test results for more information.'
-    }
+    $webClient = New-Object 'System.Net.WebClient'
+    Invoke-Expression -Command $webClient.DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
+    
+    Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path $scriptAnalyzerResultsPath
+
 }
 
-#Synopsis: Run tests.
 task RunTests {
+
     $invokePesterParams = @{
         OutputFile = (Join-Path $Artifacts "TestResults.xml")
         OutputFormat = "NUnitXml"
@@ -71,17 +58,33 @@ task RunTests {
     $testResults = Invoke-Pester @invokePesterParams
 
     $testResults | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $Artifacts "PesterResults.json")
+
 }
 
-#Synopsis: Confirm that tests passed.
 task ConfirmTestsPassed {
-    # Fail Build after reports are created, this allows CI to publish test results before failing
-    [xml]$xml = Get-Content (Join-Path $Artifacts "TestResults.xml")
-    $numberFails = $xml."test-results".failures
-    assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
 
-    # Fail Build if Coverage is under requirement
-    $json = Get-Content (Join-Path $Artifacts "PesterResults.json") | ConvertFrom-Json
-    $overallCoverage = [Math]::Floor(($json.CodeCoverage.NumberOfCommandsExecuted / $json.CodeCoverage.NumberOfCommandsAnalyzed) * 100)
+    [xml]$testResultsXml = Get-Content (Join-Path $Artifacts "TestResults.xml")
+    $numberFails = $testResultsXml."test-results".failures
+    assert($numberFails -eq 0) ('Failed "{0}" Pester tests.' -f $numberFails)
+
+    [xml]$scriptAnalyzerXml = Get-Content (Join-Path $Artifacts "ScriptAnalyzerResult.xml")
+    $numberFails = $scriptAnalyzerXml."test-results".failures
+    assert($numberFails -eq 0) ('Failed "{0}" ScriptAnalyzer rules.' -f $numberFails)
+
+    $pesterJson = Get-Content (Join-Path $Artifacts "PesterResults.json") | ConvertFrom-Json
+    $overallCoverage = [Math]::Floor(($pesterJson.CodeCoverage.NumberOfCommandsExecuted / $pesterJson.CodeCoverage.NumberOfCommandsAnalyzed) * 100)
     assert($OverallCoverage -gt $PercentCompliance) ('A Code Coverage of "{0}" does not meet the build requirement of "{1}"' -f $overallCoverage, $PercentCompliance)
+
+}
+
+task Publish {
+
+    $testResultsPath = (Join-Path $Artifacts "TestResults.xml")
+    $webClient = New-Object 'System.Net.WebClient'
+    $webClient.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsPath | Select-Object -ExpandProperty Path) )
+
+    $scriptAnalyzerResultsPath = (Join-Path $Artifacts "ScriptAnalyzerResults.xml")
+    $webClient = New-Object 'System.Net.WebClient'
+    $webClient.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $scriptAnalyzerResultsPath | Select-Object -ExpandProperty Path) )
+
 }
