@@ -1,10 +1,9 @@
 ﻿
-param (
+param(
     $Artifacts = '.\artifacts',
     $ModuleName = "ModuleTemplate",
     $ModulePath = '.\ModuleTemplate',
-    #$BuildNumber = $env:BUILD_NUMBER,
-    $BuildNumber = 1.0.0,
+    $BuildNumber = $env:BUILD_NUMBER,
     $PercentCompliance = '50'
 )
 
@@ -77,9 +76,22 @@ task ConfirmTestsPassed {
 
 task Package {
 
-    Register-PSRepository -Name Artifacts -SourceLocation (Resolve-Path $Artifacts).Path -PublishLocation (Resolve-Path $Artifacts).Path -InstallationPolicy Trusted
+    $paramsRegisterPSRepository = @{
+        Name               = 'Artifacts'
+        SourceLocation     = (Resolve-Path $Artifacts).Path
+        PublishLocation    = (Resolve-Path $Artifacts).Path
+        InstallationPolicy = 'Trusted'
+    }
+    
+    Register-PSRepository @paramsRegisterPSRepository
 
-    "Publish-Module -Path (Resolve-Path $ModulePath).Path -Repository Artifacts -NuGetApiKey 'Nothing'"
+    $paramsPublishModule = @{
+        Path        = (Resolve-Path $ModulePath).Path
+        Repository  = 'Artifacts'
+        NuGetApiKey = '12345'
+    }
+
+    Publish-Module @paramsPublishModule
 
     UnRegister-PSRepository -Name Artifacts
 
