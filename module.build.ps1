@@ -1,12 +1,4 @@
 ﻿
-param(
-    $Artifacts = '.\Artifacts',
-    $ModuleName = "ModuleTemplate",
-    $ModulePath = '.\ModuleTemplate',
-    $BuildNumber = $env:BUILD_NUMBER,
-    $PercentCompliance = '50'
-)
-
 $projectRoot = $ENV:BHProjectPath
 
 task Default Clean, Analyze, RunTests, ConfirmTestsPassed, Publish
