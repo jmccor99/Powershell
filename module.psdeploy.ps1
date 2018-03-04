@@ -1,5 +1,4 @@
-if($ENV:BHProjectName -and $ENV:BHProjectName.Count -eq 1)
-{
+if ($ENV:BHProjectName -and $ENV:BHProjectName.Count -eq 1) {
     Deploy Module {
         By PSGalleryModule {
             FromSource $ENV:BHProjectName

@@ -2,13 +2,13 @@
 .SYNOPSIS
 .DESCRIPTION
 #>
-function Invoke-ModuleTemplatePublic {
+function Invoke-PublicFunction {
     [CmdletBinding()]
     param(
 
     )
 
     process {
-        return "Invoke-ModuleTemplatePublic"
+        return "Invoke-PublicFunction"
     }
 }

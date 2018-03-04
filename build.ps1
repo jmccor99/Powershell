@@ -1,11 +1,13 @@
 
-Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
+Install-Module -Repository PSGallery -Name PSDepend 
 
-Install-Module -Repository PSGallery -Name InvokeBuild, PSScriptAnalyzer, PSDeploy, BuildHelpers -Force -AllowClobber
+Import-Module -Name PSDepend
 
-Install-Module -Repository PSGallery -Name Pester -MinimumVersion 4.1 -Force -AllowClobber -SkipPublisherCheck
+Invoke-PSDepend -Force
 
-Import-Module InvokeBuild, BuildHelpers, PSScriptAnalyzer, PSDeploy, BuildHelpers, Pester
+Import-Module InvokeBuild, PSScriptAnalyzer, PSDeploy, BuildHelpers, Pester
+
+Get-Item -Path env:BH* | Remove-Item
 
 Set-BuildEnvironment
 

@@ -2,13 +2,13 @@
 .SYNOPSIS
 .DESCRIPTION
 #>
-function Invoke-ModuleTemplatePrivate {
+function Invoke-PrivateFunction {
     [CmdletBinding()]
     param(
 
     )
 
     process {
-	return "Invoke-ModuleTemplatePrivate"
+	return "Invoke-PrivateFunction"
     }
 }

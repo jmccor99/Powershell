@@ -14,9 +14,9 @@ Import-Module $psmPath -Force -NoClobber
 
 InModuleScope "ModuleTemplate" {
 
-    Describe "Invoke-ModuleTemplatePrivate" {
-        It 'Invoke-ModuleTemplatePrivate Should Be Invoke-ModuleTemplatePrivate' {
-            Invoke-ModuleTemplatePrivate | Should be 'Invoke-ModuleTemplatePrivate'
+    Describe "Invoke-PrivateFunction" {
+        It 'Should Be Invoke-PrivateFunction' {
+            Invoke-PrivateFunction | Should be 'Invoke-PrivateFunction'
         }
     }
 

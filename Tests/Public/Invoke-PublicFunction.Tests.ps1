@@ -14,9 +14,9 @@ Import-Module $psmPath -Force -NoClobber
 
 InModuleScope "ModuleTemplate" {
 
-    Describe "Invoke-ModuleTemplatePublic" {
-        It 'Invoke-ModuleTemplatePublic Should Be Invoke-ModuleTemplatePublic' {
-            Invoke-ModuleTemplatePublic | Should be 'Invoke-ModuleTemplatePublic'
+    Describe "Invoke-PublicFunction" {
+        It 'Should return Invoke-PublicFunction' {
+            Invoke-PublicFunction | Should be 'Invoke-PublicFunction'
         }
     }
 
