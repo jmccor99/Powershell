@@ -1,6 +1,6 @@
 ﻿
 param(
-    $Artifacts = '.\artifacts',
+    $Artifacts = '.\Artifacts',
     $ModuleName = "ModuleTemplate",
     $ModulePath = '.\ModuleTemplate',
     $BuildNumber = $env:BUILD_NUMBER,
@@ -9,16 +9,12 @@ param(
 
 $projectRoot = $ENV:BHProjectPath
 
-if (-not $projectRoot) {
-    $projectRoot = $PSScriptRoot
-}
-
 task Default Clean, Analyze, RunTests, ConfirmTestsPassed, Publish
 
 task Clean {
 
     if ( Test-Path -Path $Artifacts ) {
-        Remove-Item -Path "$Artifacts/*" -Recurse -Force
+        Remove-Item -Path "$Artifacts\*" -Recurse -Force
     } else {
         New-Item -ItemType Directory -Path $Artifacts -Force | Out-Null
     }

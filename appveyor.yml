@@ -11,5 +11,5 @@ build_script:
 test: off
 
 artifacts:
-- path: artifacts\**\*
+- path: Artifacts\**\*
   name: ModuleTemplate

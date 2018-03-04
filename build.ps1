@@ -1,13 +1,15 @@
 
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
-Install-Module -Repository PSGallery -Name PSDepend 
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
-Import-Module -Name PSDepend
+Install-Module -Name PSDepend -Force 
+
+Import-Module -Name PSDepend -Force
 
 Invoke-PSDepend -Force
 
-Import-Module InvokeBuild, PSScriptAnalyzer, PSDeploy, BuildHelpers, Pester
+Import-Module InvokeBuild, PSScriptAnalyzer, PSDeploy, BuildHelpers, Pester -Force
 
 Get-Item -Path env:BH* | Remove-Item
 
