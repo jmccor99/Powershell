@@ -1,4 +1,6 @@
 
+Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
+
 Install-Module -Repository PSGallery -Name PSDepend 
 
 Import-Module -Name PSDepend
