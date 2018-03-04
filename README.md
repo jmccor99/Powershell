@@ -9,7 +9,7 @@ git clone https://github.com/jmccor99/Powershell.git
 
 cd c:\temp\Powershell\   
 
-.\Build.ps1  
+.\build.ps1  
 
 AppVeyor Build Status 
 
