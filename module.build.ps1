@@ -69,15 +69,14 @@ task ConfirmTestsPassed {
 
 task Publish {
 
-    $Version = Get-NextNugetPackageVersion -Name $env:BHProjectName
-
-    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
-
     if (
         $ENV:BHBuildSystem -eq "AppVeyor" -and
         $ENV:BHBranchName -eq "master"   -and
         $ENV:BHCommitMessage -match "!deploy"
-    ) { 
+    ) {
+        $Version = Get-NextNugetPackageVersion -Name $env:BHProjectName
+        Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
+
         Get-ChildItem -Path $Artifacts -Filter '*Results*.xml' -File | ForEach-Object {
             (New-Object -TypeName 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "$($_.FullName)")
         }
