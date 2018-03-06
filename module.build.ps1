@@ -29,7 +29,7 @@ task Analyze {
     
     Invoke-Expression -Command (New-Object -TypeName 'System.Net.WebClient').DownloadString('https://raw.githubusercontent.com/MathieuBuisson/PowerShell-DevOps/master/Export-NUnitXml/Export-NUnitXml.psm1')
     
-    Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResult -Path $scriptAnalyzerResultsPath
+    Export-NUnitXml -ScriptAnalyzerResult $ScriptAnalyzerResults -Path $scriptAnalyzerResultsPath
 
 }
 
